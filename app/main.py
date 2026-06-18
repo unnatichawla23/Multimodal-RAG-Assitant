@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.file_handler import save_uploaded_file
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -42,13 +43,18 @@ submit_button = st.button("Generate Answer")
 
 if submit_button:
     st.subheader("Answer")
-    st.info("AI answer will appear here in upcoming sessions.")
-
-    st.subheader("Selected Mode")
-    st.write(mode)
 
     if uploaded_file is not None:
-        st.subheader("Uploaded File")
-        st.write(uploaded_file.name)
+        saved_file_path = save_uploaded_file(uploaded_file)
+
+        st.success("File uploaded and saved successfully.")
+
+        st.subheader("Uploaded File Details")
+        st.write(f"File Name: {uploaded_file.name}")
+        st.write(f"File Type: {uploaded_file.type}")
+        st.write(f"File Size: {round(uploaded_file.size / 1024, 2)} KB")
+        st.write(f"Saved Path: {saved_file_path}")
+
+        st.info("PDF text extraction will be added in the next session.")
     else:
-        st.warning("Please upload a document before asking a question.")
+        st.warning("Please upload a PDF document before asking a question.")

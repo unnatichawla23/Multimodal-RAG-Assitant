@@ -14,4 +14,41 @@ st.write(
     "Ask questions and get source-grounded answers."
 )
 
-st.info("Session 1 setup completed successfully.")
+st.sidebar.title("SkillSight AI")
+st.sidebar.write("Choose how you want to use the assistant.")
+
+mode = st.sidebar.selectbox(
+    "Select Assistant Mode",
+    [
+        "Study Mode",
+        "Research Mode",
+        "Career Mode",
+        "Image/Scanned Document Mode",
+        "General Document Q&A Mode"
+    ]
+)
+
+uploaded_file = st.file_uploader(
+    "Upload your document",
+    type=["pdf", "png", "jpg", "jpeg"]
+)
+
+question = st.text_area(
+    "Ask a question about your uploaded document",
+    placeholder="Example: Summarize this document in simple language."
+)
+
+submit_button = st.button("Generate Answer")
+
+if submit_button:
+    st.subheader("Answer")
+    st.info("AI answer will appear here in upcoming sessions.")
+
+    st.subheader("Selected Mode")
+    st.write(mode)
+
+    if uploaded_file is not None:
+        st.subheader("Uploaded File")
+        st.write(uploaded_file.name)
+    else:
+        st.warning("Please upload a document before asking a question.")

@@ -4,6 +4,7 @@ from utils.pdf_processor import extract_text_from_pdf
 from utils.text_chunker import create_text_chunks
 from utils.embedding_generator import generate_embeddings
 from utils.vector_store import store_embeddings_in_chroma
+from utils.query_processor import process_user_query
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -47,6 +48,15 @@ submit_button = st.button("Generate Answer")
 
 if submit_button:
     st.subheader("Answer")
+    processed_question = process_user_query(question)
+
+    if not processed_question:
+        st.warning("Please enter a question before generating an answer.")
+        st.stop()
+        
+
+    st.subheader("Processed Question")
+    st.write(processed_question)
 
     if uploaded_file is not None:
         saved_file_path = save_uploaded_file(uploaded_file)
@@ -85,7 +95,7 @@ if submit_button:
                 f"Embedding dimension: "
                 f"{len(embedded_chunks[0]['embedding'])}"
             )
-            
+
             stored_count = store_embeddings_in_chroma(embedded_chunks)
             st.subheader("Vector Database Storage")
             st.success(f"Stored {stored_count} chunk(s) in ChromaDB.")

@@ -3,6 +3,7 @@ from utils.file_handler import save_uploaded_file
 from utils.pdf_processor import extract_text_from_pdf
 from utils.text_chunker import create_text_chunks
 from utils.embedding_generator import generate_embeddings
+from utils.vector_store import store_embeddings_in_chroma
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -84,6 +85,10 @@ if submit_button:
                 f"Embedding dimension: "
                 f"{len(embedded_chunks[0]['embedding'])}"
             )
+            
+            stored_count = store_embeddings_in_chroma(embedded_chunks)
+            st.subheader("Vector Database Storage")
+            st.success(f"Stored {stored_count} chunk(s) in ChromaDB.")
 
             st.subheader("Chunk Preview")
 

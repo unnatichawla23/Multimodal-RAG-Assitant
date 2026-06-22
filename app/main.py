@@ -2,7 +2,7 @@ import streamlit as st
 from utils.file_handler import save_uploaded_file
 from utils.pdf_processor import extract_text_from_pdf
 from utils.text_chunker import create_text_chunks
-from utils.embedding_generator import generate_embeddings
+from utils.embedding_generator import generate_embeddings, generate_query_embedding
 from utils.vector_store import store_embeddings_in_chroma
 from utils.query_processor import process_user_query
 
@@ -57,6 +57,12 @@ if submit_button:
 
     st.subheader("Processed Question")
     st.write(processed_question)
+
+    query_embedding = generate_query_embedding(processed_question)
+
+    st.subheader("Query Embedding Generated")
+    st.success("User question converted into embedding successfully.")
+    st.write(f"Query embedding dimension: {len(query_embedding)}")
 
     if uploaded_file is not None:
         saved_file_path = save_uploaded_file(uploaded_file)

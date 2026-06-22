@@ -26,3 +26,17 @@ def generate_embeddings(chunks):
         embedded_chunks.append(chunk_with_embedding)
 
     return embedded_chunks
+
+def generate_query_embedding(query):
+    """
+    Generates an embedding for the user query.
+
+    Args:
+        query (str): Cleaned user question.
+
+    Returns:
+        list: Query embedding.
+    """
+    query_embedding = model.encode(query)
+
+    return query_embedding.tolist()

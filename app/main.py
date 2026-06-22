@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.file_handler import save_uploaded_file
 from utils.pdf_processor import extract_text_from_pdf
+from utils.text_chunker import create_text_chunks
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -58,15 +59,30 @@ if submit_button:
 
         extracted_pages = extract_text_from_pdf(saved_file_path)
 
-        st.subheader("Extracted Text Preview")
+        st.subheader("Extracted Text Information")
 
         if extracted_pages:
             st.success(f"Extracted text from {len(extracted_pages)} page(s).")
 
-            for page in extracted_pages[:2]:
-                st.markdown(f"Page {page['page_number']}")
-                st.write(page["text"][:1000])
+            chunks = create_text_chunks(
+                pages_text=extracted_pages,
+                document_name=uploaded_file.name
+            )
+
+            st.subheader("Text Chunks Created")
+            st.success(f"Created {len(chunks)} chunk(s).")
+
+            for chunk in chunks[:3]:
+                st.markdown(
+                    f"**Chunk {chunk['chunk_index']}** | "
+                    f"Document: {chunk['document_name']} | "
+                    f"Page: {chunk['page_number']}"
+                )
+
+                st.write(chunk["chunk_text"][:700])
+
         else:
             st.warning("No readable text found in this PDF.")
+
     else:
         st.warning("Please upload a PDF document before asking a question.")

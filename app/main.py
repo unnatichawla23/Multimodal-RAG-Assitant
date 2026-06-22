@@ -2,6 +2,7 @@ import streamlit as st
 from utils.file_handler import save_uploaded_file
 from utils.pdf_processor import extract_text_from_pdf
 from utils.text_chunker import create_text_chunks
+from utils.embedding_generator import generate_embeddings
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -71,6 +72,20 @@ if submit_button:
 
             st.subheader("Text Chunks Created")
             st.success(f"Created {len(chunks)} chunk(s).")
+
+            embedded_chunks = generate_embeddings(chunks)
+
+            st.subheader("Embeddings Generated")
+            st.success(
+                f"Generated embeddings for {len(embedded_chunks)} chunk(s)."
+            )
+
+            st.write(
+                f"Embedding dimension: "
+                f"{len(embedded_chunks[0]['embedding'])}"
+            )
+
+            st.subheader("Chunk Preview")
 
             for chunk in chunks[:3]:
                 st.markdown(

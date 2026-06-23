@@ -5,6 +5,7 @@ from utils.text_chunker import create_text_chunks
 from utils.embedding_generator import generate_embeddings, generate_query_embedding
 from utils.vector_store import store_embeddings_in_chroma
 from utils.query_processor import process_user_query
+from utils.retriever import retrieve_relevant_chunks
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -63,6 +64,22 @@ if submit_button:
     st.subheader("Query Embedding Generated")
     st.success("User question converted into embedding successfully.")
     st.write(f"Query embedding dimension: {len(query_embedding)}")
+
+    retrieved_chunks = retrieve_relevant_chunks(query_embedding)
+
+    st.subheader("Retrieved Chunks")
+    st.success(
+        f"Retrieved {len(retrieved_chunks)} relevant chunk(s) from ChromaDB."
+    )
+
+    for chunk in retrieved_chunks:
+        st.markdown(
+            f"**Document:** {chunk['document_name']} | "
+            f"**Page:** {chunk['page_number']} | "
+            f"**Chunk:** {chunk['chunk_index']}"
+        )
+
+        st.write(chunk["chunk_text"][:500])
 
     if uploaded_file is not None:
         saved_file_path = save_uploaded_file(uploaded_file)

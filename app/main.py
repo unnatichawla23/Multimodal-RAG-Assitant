@@ -6,6 +6,7 @@ from utils.embedding_generator import generate_embeddings, generate_query_embedd
 from utils.vector_store import store_embeddings_in_chroma
 from utils.query_processor import process_user_query
 from utils.retriever import retrieve_relevant_chunks
+from utils.prompt_builder import build_rag_prompt
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -80,6 +81,18 @@ if submit_button:
         )
 
         st.write(chunk["chunk_text"][:500])
+
+        rag_prompt = build_rag_prompt(
+            question=processed_question,
+            retrieved_chunks=retrieved_chunks,
+            mode=mode
+        )
+
+        st.subheader("RAG Prompt Created")
+        st.success("Structured prompt created successfully.")
+
+        with st.expander("View Generated Prompt"):
+            st.write(rag_prompt)
 
     if uploaded_file is not None:
         saved_file_path = save_uploaded_file(uploaded_file)

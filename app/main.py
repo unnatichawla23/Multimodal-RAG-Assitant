@@ -7,6 +7,7 @@ from utils.vector_store import store_embeddings_in_chroma
 from utils.query_processor import process_user_query
 from utils.retriever import retrieve_relevant_chunks
 from utils.prompt_builder import build_rag_prompt
+from utils.gemini_service import generate_answer_with_gemini
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -93,6 +94,11 @@ if submit_button:
 
         with st.expander("View Generated Prompt"):
             st.write(rag_prompt)
+
+            final_answer = generate_answer_with_gemini(rag_prompt)
+
+            st.subheader("Final Answer")
+            st.write(final_answer)
 
     if uploaded_file is not None:
         saved_file_path = save_uploaded_file(uploaded_file)

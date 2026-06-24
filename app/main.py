@@ -1,14 +1,9 @@
 import streamlit as st
-from utils.file_handler import save_uploaded_file
-from utils.pdf_processor import extract_text_from_pdf
-from utils.text_chunker import create_text_chunks
-from utils.embedding_generator import generate_embeddings, generate_query_embedding
-from utils.vector_store import store_embeddings_in_chroma
+
 from utils.query_processor import process_user_query
-from utils.retriever import retrieve_relevant_chunks
-from utils.prompt_builder import build_rag_prompt
-from utils.gemini_service import generate_answer_with_gemini
+from utils.rag_pipeline import run_rag_pipeline
 from components.source_display import display_retrieved_sources
+
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -59,86 +54,50 @@ if submit_button:
         st.warning("Please enter a question before generating an answer.")
         st.stop()
 
+    if uploaded_file is None:
+        st.warning("Please upload a PDF document before asking a question.")
+        st.stop()
+
     st.subheader("Processed Question")
     st.write(processed_question)
 
-    query_embedding = generate_query_embedding(processed_question)
+    result = run_rag_pipeline(
+        uploaded_file=uploaded_file,
+        processed_question=processed_question,
+        mode=mode
+    )
 
-    st.subheader("Query Embedding Generated")
-    st.success("User question converted into embedding successfully.")
-    st.write(f"Query embedding dimension: {len(query_embedding)}")
+    if not result["success"]:
+        st.warning(result["message"])
+        st.stop()
 
-    if uploaded_file is not None:
-        saved_file_path = save_uploaded_file(uploaded_file)
+    st.success("File uploaded and processed successfully.")
 
-        st.success("File uploaded and saved successfully.")
+    st.subheader("Uploaded File Details")
+    st.write(f"File Name: {uploaded_file.name}")
+    st.write(f"File Type: {uploaded_file.type}")
+    st.write(f"File Size: {round(uploaded_file.size / 1024, 2)} KB")
+    st.write(f"Saved Path: {result['saved_file_path']}")
 
-        st.subheader("Uploaded File Details")
-        st.write(f"File Name: {uploaded_file.name}")
-        st.write(f"File Type: {uploaded_file.type}")
-        st.write(f"File Size: {round(uploaded_file.size / 1024, 2)} KB")
-        st.write(f"Saved Path: {saved_file_path}")
+    st.subheader("Processing Summary")
+    st.write(f"Extracted Pages: {len(result['extracted_pages'])}")
+    st.write(f"Text Chunks Created: {len(result['chunks'])}")
+    st.write(f"Embeddings Generated: {len(result['embedded_chunks'])}")
+    st.write(f"Embedding Dimension: {len(result['query_embedding'])}")
+    st.write(f"Chunks Stored in ChromaDB: {result['stored_count']}")
 
-        extracted_pages = extract_text_from_pdf(saved_file_path)
+    st.subheader("Retrieved Chunks")
+    st.success(
+        f"Retrieved {len(result['retrieved_chunks'])} relevant chunk(s) from ChromaDB."
+    )
 
-        st.subheader("Extracted Text Information")
+    display_retrieved_sources(result["retrieved_chunks"])
 
-        if extracted_pages:
-            st.success(f"Extracted text from {len(extracted_pages)} page(s).")
+    st.subheader("RAG Prompt Created")
+    st.success("Structured prompt created successfully.")
 
-            chunks = create_text_chunks(
-                pages_text=extracted_pages,
-                document_name=uploaded_file.name
-            )
+    with st.expander("View Generated Prompt"):
+        st.write(result["rag_prompt"])
 
-            st.subheader("Text Chunks Created")
-            st.success(f"Created {len(chunks)} chunk(s).")
-
-            embedded_chunks = generate_embeddings(chunks)
-
-            st.subheader("Embeddings Generated")
-            st.success(
-                f"Generated embeddings for {len(embedded_chunks)} chunk(s)."
-            )
-
-            st.write(
-                f"Embedding dimension: "
-                f"{len(embedded_chunks[0]['embedding'])}"
-            )
-
-            stored_count = store_embeddings_in_chroma(embedded_chunks)
-
-            st.subheader("Vector Database Storage")
-            st.success(f"Stored {stored_count} chunk(s) in ChromaDB.")
-
-            retrieved_chunks = retrieve_relevant_chunks(query_embedding)
-
-            st.subheader("Retrieved Chunks")
-            st.success(
-                f"Retrieved {len(retrieved_chunks)} relevant chunk(s) from ChromaDB."
-            )
-
-            display_retrieved_sources(retrieved_chunks)
-
-            rag_prompt = build_rag_prompt(
-                question=processed_question,
-                retrieved_chunks=retrieved_chunks,
-                mode=mode
-            )
-
-            st.subheader("RAG Prompt Created")
-            st.success("Structured prompt created successfully.")
-
-            with st.expander("View Generated Prompt"):
-                st.write(rag_prompt)
-
-            final_answer = generate_answer_with_gemini(rag_prompt)
-
-            st.subheader("Final Answer")
-            st.write(final_answer)
-
-        else:
-            st.warning("No readable text found in this PDF.")
-
-    else:
-        st.warning("Please upload a PDF document before asking a question.")
+    st.subheader("Final Answer")
+    st.write(result["final_answer"])

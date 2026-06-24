@@ -36,9 +36,10 @@ mode = st.sidebar.selectbox(
     ]
 )
 
-uploaded_file = st.file_uploader(
-    "Upload your document",
-    type=["pdf", "png", "jpg", "jpeg"]
+uploaded_files = st.file_uploader(
+    "Upload your document(s)",
+    type=["pdf", "png", "jpg", "jpeg"],
+    accept_multiple_files=True
 )
 
 question = st.text_area(
@@ -57,15 +58,15 @@ if submit_button:
         st.warning("Please enter a question before generating an answer.")
         st.stop()
 
-    if uploaded_file is None:
-        st.warning("Please upload a PDF document before asking a question.")
+    if not uploaded_files:
+        st.warning("Please upload at least one document before asking a question.")
         st.stop()
 
     st.subheader("Processed Question")
     st.write(processed_question)
 
     result = run_rag_pipeline(
-        uploaded_file=uploaded_file,
+        uploaded_files=uploaded_files,
         processed_question=processed_question,
         mode=mode
     )
@@ -77,10 +78,13 @@ if submit_button:
     st.success("File uploaded and processed successfully.")
 
     st.subheader("Uploaded File Details")
-    st.write(f"File Name: {uploaded_file.name}")
-    st.write(f"File Type: {uploaded_file.type}")
-    st.write(f"File Size: {round(uploaded_file.size / 1024, 2)} KB")
-    st.write(f"Saved Path: {result['saved_file_path']}")
+
+    for file_info in result["uploaded_files_info"]:
+        st.write(f"File Name: {file_info['file_name']}")
+        st.write(f"File Type: {file_info['file_type']}")
+        st.write(f"File Size: {file_info['file_size_kb']} KB")
+        st.write(f"Saved Path: {file_info['saved_file_path']}")
+        st.divider()
 
     st.subheader("Processing Summary")
     st.write(f"Extracted Pages: {len(result['extracted_pages'])}")

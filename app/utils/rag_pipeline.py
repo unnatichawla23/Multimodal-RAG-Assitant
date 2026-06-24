@@ -9,32 +9,47 @@ from utils.prompt_builder import build_rag_prompt
 from utils.gemini_service import generate_answer_with_gemini
 
 
-def run_rag_pipeline(uploaded_file, processed_question, mode):
+def run_rag_pipeline(uploaded_files, processed_question, mode):
     """
-    Runs the complete RAG pipeline for an uploaded document and user question.
+    Runs the complete RAG pipeline for multiple uploaded documents and user question.
     """
-    saved_file_path = save_uploaded_file(uploaded_file)
+    uploaded_files_info = []
+    all_extracted_pages = []
+    all_chunks = []
 
-    file_type = uploaded_file.type
+    for uploaded_file in uploaded_files:
+        saved_file_path = save_uploaded_file(uploaded_file)
 
-    if file_type == "application/pdf":
-        extracted_pages = extract_text_from_pdf(saved_file_path)
-        
-    else:
-        extracted_pages = extract_text_from_image(saved_file_path)
-
-    if not extracted_pages:
-        return {
-            "success": False,
-            "message": "No readable text found in this PDF."
+        file_info = {
+            "file_name": uploaded_file.name,
+            "file_type": uploaded_file.type,
+            "file_size_kb": round(uploaded_file.size / 1024, 2),
+            "saved_file_path": saved_file_path
         }
 
-    chunks = create_text_chunks(
-        pages_text=extracted_pages,
-        document_name=uploaded_file.name
-    )
+        uploaded_files_info.append(file_info)
 
-    embedded_chunks = generate_embeddings(chunks)
+        if uploaded_file.type == "application/pdf":
+            extracted_pages = extract_text_from_pdf(saved_file_path)
+        else:
+            extracted_pages = extract_text_from_image(saved_file_path)
+
+        if extracted_pages:
+            chunks = create_text_chunks(
+                pages_text=extracted_pages,
+                document_name=uploaded_file.name
+            )
+
+            all_extracted_pages.extend(extracted_pages)
+            all_chunks.extend(chunks)
+
+    if not all_chunks:
+        return {
+            "success": False,
+            "message": "No readable text found in the uploaded document(s)."
+        }
+
+    embedded_chunks = generate_embeddings(all_chunks)
 
     stored_count = store_embeddings_in_chroma(embedded_chunks)
 
@@ -52,9 +67,9 @@ def run_rag_pipeline(uploaded_file, processed_question, mode):
 
     return {
         "success": True,
-        "saved_file_path": saved_file_path,
-        "extracted_pages": extracted_pages,
-        "chunks": chunks,
+        "uploaded_files_info": uploaded_files_info,
+        "extracted_pages": all_extracted_pages,
+        "chunks": all_chunks,
         "embedded_chunks": embedded_chunks,
         "stored_count": stored_count,
         "query_embedding": query_embedding,

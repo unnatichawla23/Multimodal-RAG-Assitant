@@ -1,5 +1,6 @@
 from utils.file_handler import save_uploaded_file
 from utils.pdf_processor import extract_text_from_pdf
+from utils.ocr_processor import extract_text_from_image
 from utils.text_chunker import create_text_chunks
 from utils.embedding_generator import generate_embeddings, generate_query_embedding
 from utils.vector_store import store_embeddings_in_chroma
@@ -14,7 +15,13 @@ def run_rag_pipeline(uploaded_file, processed_question, mode):
     """
     saved_file_path = save_uploaded_file(uploaded_file)
 
-    extracted_pages = extract_text_from_pdf(saved_file_path)
+    file_type = uploaded_file.type
+
+    if file_type == "application/pdf":
+        extracted_pages = extract_text_from_pdf(saved_file_path)
+        
+    else:
+        extracted_pages = extract_text_from_image(saved_file_path)
 
     if not extracted_pages:
         return {

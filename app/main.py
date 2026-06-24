@@ -3,6 +3,7 @@ import streamlit as st
 from utils.query_processor import process_user_query
 from utils.rag_pipeline import run_rag_pipeline
 from components.source_display import display_retrieved_sources
+from utils.memory_manager import initialize_memory, add_to_memory, get_chat_history
 
 
 st.set_page_config(
@@ -10,6 +11,8 @@ st.set_page_config(
     page_icon="🧠",
     layout="wide"
 )
+
+initialize_memory()
 
 st.title("🧠 SkillSight AI")
 st.subheader("Multimodal RAG-based Student and Career Assistant")
@@ -101,3 +104,18 @@ if submit_button:
 
     st.subheader("Final Answer")
     st.write(result["final_answer"])
+
+    add_to_memory(processed_question, result["final_answer"])
+
+    chat_history = get_chat_history()
+
+    if chat_history:
+        st.subheader("Conversation Memory")
+
+        for index, chat in enumerate(chat_history, start=1):
+            with st.expander(f"Chat {index}"):
+                st.markdown("Question")
+                st.write(chat["question"])
+
+                st.markdown("Answer")
+                st.write(chat["answer"])

@@ -36,6 +36,11 @@ mode = st.sidebar.selectbox(
     ]
 )
 
+developer_mode = st.sidebar.toggle(
+    "Developer Mode",
+    value=False
+)
+
 uploaded_files = st.file_uploader(
     "Upload your document(s)",
     type=["pdf", "png", "jpg", "jpeg"],
@@ -86,28 +91,35 @@ if submit_button:
         st.write(f"Saved Path: {file_info['saved_file_path']}")
         st.divider()
 
-    st.subheader("Processing Summary")
-    st.write(f"Extracted Pages: {len(result['extracted_pages'])}")
-    st.write(f"Text Chunks Created: {len(result['chunks'])}")
-    st.write(f"Embeddings Generated: {len(result['embedded_chunks'])}")
-    st.write(f"Embedding Dimension: {len(result['query_embedding'])}")
-    st.write(f"Chunks Stored in ChromaDB: {result['stored_count']}")
+    if developer_mode:
+        st.subheader("Processing Summary")
 
-    st.subheader("Retrieved Chunks")
-    st.success(
-        f"Retrieved {len(result['retrieved_chunks'])} relevant chunk(s) from ChromaDB."
-    )
+        st.write(f"Extracted Pages: {len(result['extracted_pages'])}")
+        st.write(f"Text Chunks Created: {len(result['chunks'])}")
+        st.write(f"Embeddings Generated: {len(result['embedded_chunks'])}")
+        st.write(f"Embedding Dimension: {len(result['query_embedding'])}")
+        st.write(f"Chunks Stored in ChromaDB: {result['stored_count']}")
+
+    if developer_mode:
+        st.subheader("Retrieved Chunks")
+        st.success(
+            f"Retrieved {len(result['retrieved_chunks'])} relevant chunk(s) from ChromaDB."
+        )
 
     display_retrieved_sources(result["retrieved_chunks"])
 
-    st.subheader("RAG Prompt Created")
-    st.success("Structured prompt created successfully.")
+    if developer_mode:
+        st.subheader("RAG Prompt Created")
+        st.success("Structured prompt created successfully.")
 
-    with st.expander("View Generated Prompt"):
-        st.write(result["rag_prompt"])
+        with st.expander("View Generated Prompt"):
+            st.write(result["rag_prompt"])
 
-    st.subheader("Final Answer")
-    st.write(result["final_answer"])
+    st.subheader("🤖 SkillSight AI Answer")
+
+    st.success("Answer generated successfully!")
+
+    st.markdown(result["final_answer"])
 
     add_to_memory(processed_question, result["final_answer"])
 

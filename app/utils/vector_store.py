@@ -1,8 +1,5 @@
 import chromadb
-
-
-CHROMA_DB_PATH = "chroma_db"
-COLLECTION_NAME = "skillsight_documents"
+from config import CHROMA_DB_PATH, COLLECTION_NAME
 
 
 def get_chroma_collection():
@@ -64,3 +61,20 @@ def store_embeddings_in_chroma(embedded_chunks):
     )
 
     return len(ids)
+
+def clear_chroma_collection():
+    """
+    Clears the existing ChromaDB collection by deleting and recreating it.
+    """
+    client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
+
+    try:
+        client.delete_collection(name=COLLECTION_NAME)
+    except Exception:
+        pass
+
+    collection = client.get_or_create_collection(
+        name=COLLECTION_NAME
+    )
+
+    return collection

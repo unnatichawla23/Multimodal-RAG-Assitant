@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from config import GEMINI_MODEL
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted, NotFound
 
@@ -19,7 +20,7 @@ def generate_answer_with_gemini(prompt):
     try:
         genai.configure(api_key=api_key)
 
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel(GEMINI_MODEL)
         response = model.generate_content(prompt)
 
         return response.text

@@ -1,17 +1,11 @@
+from config import TOP_K_RESULTS
 from utils.vector_store import get_chroma_collection
 
 
-def retrieve_relevant_chunks(query_embedding, top_k=5):
+def retrieve_relevant_chunks(query_embedding, top_k=TOP_K_RESULTS):
     """
     Retrieves the most relevant chunks from ChromaDB
     using the query embedding.
-
-    Args:
-        query_embedding (list): Embedding of the user question.
-        top_k (int): Number of chunks to retrieve.
-
-    Returns:
-        list: Retrieved chunks with text and metadata.
     """
     collection = get_chroma_collection()
 

@@ -1,7 +1,5 @@
 import os
-
-
-UPLOAD_FOLDER = "uploads"
+from config import UPLOAD_FOLDER
 
 
 def save_uploaded_file(uploaded_file):

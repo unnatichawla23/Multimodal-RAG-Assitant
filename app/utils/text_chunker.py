@@ -1,15 +1,14 @@
-def create_text_chunks(pages_text, document_name, chunk_size=800, chunk_overlap=150):
+from config import CHUNK_SIZE, CHUNK_OVERLAP
+
+
+def create_text_chunks(
+    pages_text,
+    document_name,
+    chunk_size=CHUNK_SIZE,
+    chunk_overlap=CHUNK_OVERLAP
+):
     """
     Splits cleaned page text into smaller chunks.
-
-    Args:
-        pages_text (list): List of dictionaries with page_number and text.
-        document_name (str): Name of the uploaded document.
-        chunk_size (int): Maximum characters per chunk.
-        chunk_overlap (int): Overlap between chunks.
-
-    Returns:
-        list: List of chunk dictionaries with metadata.
     """
     chunks = []
     chunk_index = 1

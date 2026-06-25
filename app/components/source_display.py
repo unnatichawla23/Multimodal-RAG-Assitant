@@ -1,4 +1,5 @@
 import streamlit as st
+from config import MAX_SOURCE_PREVIEW_LENGTH
 
 
 def display_retrieved_sources(retrieved_chunks):
@@ -26,4 +27,4 @@ def display_retrieved_sources(retrieved_chunks):
             st.write(f"Similarity Distance: {round(chunk['distance'], 4)}")
 
             st.markdown("Source Preview")
-            st.write(chunk["chunk_text"][:800])
+            st.write(chunk["chunk_text"][:MAX_SOURCE_PREVIEW_LENGTH])

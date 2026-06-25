@@ -3,7 +3,7 @@ from utils.pdf_processor import extract_text_from_pdf
 from utils.ocr_processor import extract_text_from_image
 from utils.text_chunker import create_text_chunks
 from utils.embedding_generator import generate_embeddings, generate_query_embedding
-from utils.vector_store import store_embeddings_in_chroma
+from utils.vector_store import store_embeddings_in_chroma, clear_chroma_collection
 from utils.retriever import retrieve_relevant_chunks
 from utils.prompt_builder import build_rag_prompt
 from utils.gemini_service import generate_answer_with_gemini
@@ -16,6 +16,7 @@ def run_rag_pipeline(uploaded_files, processed_question, mode):
     uploaded_files_info = []
     all_extracted_pages = []
     all_chunks = []
+    clear_chroma_collection()
 
     for uploaded_file in uploaded_files:
         saved_file_path = save_uploaded_file(uploaded_file)

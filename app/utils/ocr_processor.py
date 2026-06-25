@@ -1,7 +1,7 @@
 import easyocr
+from config import OCR_LANGUAGES
 
-
-reader = easyocr.Reader(["en"])
+reader = easyocr.Reader(OCR_LANGUAGES)
 
 
 def extract_text_from_image(image_path):

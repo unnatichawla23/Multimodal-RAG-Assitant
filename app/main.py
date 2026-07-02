@@ -5,6 +5,11 @@ from utils.rag_pipeline import run_rag_pipeline
 from components.source_display import display_retrieved_sources
 from utils.memory_manager import initialize_memory, add_to_memory, get_chat_history
 
+from components.chat_interface import (
+    get_user_message,
+    display_user_message,
+    display_assistant_message,
+)
 
 st.set_page_config(
     page_title="SkillSight AI",
@@ -22,8 +27,11 @@ st.write(
     "Ask questions and get source-grounded answers."
 )
 
-st.sidebar.title("SkillSight AI")
-st.sidebar.write("Choose how you want to use the assistant.")
+st.sidebar.title("🧠 SkillSight AI")
+
+st.sidebar.markdown("---")
+
+st.sidebar.markdown("### 🤖 Assistant Settings")
 
 mode = st.sidebar.selectbox(
     "Select Assistant Mode",
@@ -41,21 +49,30 @@ developer_mode = st.sidebar.toggle(
     value=False
 )
 
-uploaded_files = st.file_uploader(
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📂 Upload Documents")
+
+uploaded_files = st.sidebar.file_uploader(
     "Upload your document(s)",
     type=["pdf", "png", "jpg", "jpeg"],
     accept_multiple_files=True
 )
 
-question = st.text_area(
-    "Ask a question about your uploaded document",
-    placeholder="Example: Summarize this document in simple language."
-)
+question = get_user_message()
 
-submit_button = st.button("Generate Answer")
 
-if submit_button:
+if question:
     st.subheader("Answer")
+
+    chat_history = get_chat_history()
+
+    # Display previous conversations
+    for chat in chat_history:
+        display_user_message(chat["question"])
+        display_assistant_message(chat["answer"])
+
+    # Display current question
+    display_user_message(question)
 
     processed_question = process_user_query(question)
 
@@ -67,8 +84,9 @@ if submit_button:
         st.warning("Please upload at least one document before asking a question.")
         st.stop()
 
-    st.subheader("Processed Question")
-    st.write(processed_question)
+    if developer_mode:
+        st.subheader("Processed Question")
+        st.write(processed_question)
 
     result = run_rag_pipeline(
         uploaded_files=uploaded_files,
@@ -80,16 +98,17 @@ if submit_button:
         st.warning(result["message"])
         st.stop()
 
-    st.success("File uploaded and processed successfully.")
+    if developer_mode:
+        st.success("File uploaded and processed successfully.")
 
-    st.subheader("Uploaded File Details")
+        st.subheader("Uploaded File Details")
 
-    for file_info in result["uploaded_files_info"]:
-        st.write(f"File Name: {file_info['file_name']}")
-        st.write(f"File Type: {file_info['file_type']}")
-        st.write(f"File Size: {file_info['file_size_kb']} KB")
-        st.write(f"Saved Path: {file_info['saved_file_path']}")
-        st.divider()
+        for file_info in result["uploaded_files_info"]:
+            st.write(f"File Name: {file_info['file_name']}")
+            st.write(f"File Type: {file_info['file_type']}")
+            st.write(f"File Size: {file_info['file_size_kb']} KB")
+            st.write(f"Saved Path: {file_info['saved_file_path']}")
+            st.divider()
 
     if developer_mode:
         st.subheader("Processing Summary")
@@ -106,8 +125,6 @@ if submit_button:
             f"Retrieved {len(result['retrieved_chunks'])} relevant chunk(s) from ChromaDB."
         )
 
-    display_retrieved_sources(result["retrieved_chunks"])
-
     if developer_mode:
         st.subheader("RAG Prompt Created")
         st.success("Structured prompt created successfully.")
@@ -115,23 +132,8 @@ if submit_button:
         with st.expander("View Generated Prompt"):
             st.write(result["rag_prompt"])
 
-    st.subheader("🤖 SkillSight AI Answer")
+    display_assistant_message(result["final_answer"])
 
-    st.success("Answer generated successfully!")
-
-    st.markdown(result["final_answer"])
+    display_retrieved_sources(result["retrieved_chunks"])
 
     add_to_memory(processed_question, result["final_answer"])
-
-    chat_history = get_chat_history()
-
-    if chat_history:
-        st.subheader("Conversation Memory")
-
-        for index, chat in enumerate(chat_history, start=1):
-            with st.expander(f"Chat {index}"):
-                st.markdown("Question")
-                st.write(chat["question"])
-
-                st.markdown("Answer")
-                st.write(chat["answer"])

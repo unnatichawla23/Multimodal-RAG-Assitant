@@ -9,7 +9,7 @@ def display_retrieved_sources(retrieved_chunks):
     Args:
         retrieved_chunks (list): Retrieved chunks from ChromaDB.
     """
-    st.subheader("Source Citations")
+    st.subheader("📄 Sources")
 
     if not retrieved_chunks:
         st.warning("No relevant sources found.")

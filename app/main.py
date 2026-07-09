@@ -35,13 +35,16 @@ if not get_chat_history():
     st.markdown("### 💡 Try asking questions like:")
 
     st.markdown("""
-- 📄 Summarize this document
-- 🖼️ Explain this image
-- 📚 Explain this research paper in simple language
-- 📊 Compare these two documents
-- 💼 Review my resume
-- 🎯 Suggest interview questions based on this resume
-""")
+    - 📄 Summarize this document
+    - 🖼️ Explain this image
+    - 📚 Explain this research paper in simple language
+    - 📊 Compare these two documents
+    - 📊 Compare two resumes
+    - 📑 Compare two research papers
+    - 📈 Compare two marksheets
+    - 💼 Review my resume
+    - 🎯 Suggest interview questions based on this resume
+    """)
 
     st.markdown("---")
 
@@ -59,6 +62,7 @@ mode = st.sidebar.selectbox(
         "Career Mode",
         "Image/Scanned Document Mode",
         "General Document Q&A Mode"
+        "Document Comparison Mode"
     ]
 )
 
@@ -100,6 +104,15 @@ if question:
 
     if not uploaded_files:
         st.warning("Please upload at least one document before asking a question.")
+        st.stop()
+
+    if (
+        mode == "Document Comparison Mode"
+        and len(uploaded_files) < 2
+    ):
+        st.warning(
+            "Please upload at least two documents for comparison."
+        )
         st.stop()
 
     if developer_mode:

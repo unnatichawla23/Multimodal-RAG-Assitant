@@ -59,8 +59,38 @@ Response style:
 - Use source-grounded explanations.
 - Mention page numbers where relevant.
 - Avoid unnecessary extra information.
-"""
-    }
+""",
+
+        "Document Comparison Mode": """
+You are in Document Comparison Mode.
+Your answer should compare multiple uploaded documents.
+
+Response style:
+Response style:
+- Start with a comparison table.
+- Compare section by section.
+- Identify similarities.
+- Identify differences.
+- Highlight important changes.
+- Mention document names.
+- Provide key findings.
+- End with a concise conclusion.
+- Do not invent information.
+- Do not include revision notes.
+- Instead provide a section called "Key Findings".
+Comparison Format:
+
+| Category | Document 1 | Document 2 |
+|----------|------------|------------|
+
+Then provide:
+- Similarities
+- Differences
+- Key Findings
+- Conclusion
+""",
+
+}
 
     return instructions.get(mode, instructions["General Document Q&A Mode"])
 
@@ -99,8 +129,10 @@ Core Rules:
 4. Mention source page numbers wherever relevant.
 5. Do not hallucinate or invent information.
 6. Keep the answer useful for students and early-career professionals.
-7. If the user asks to generate a quiz, MCQs, practice questions, interview questions, or viva questions, create them ONLY from the provided document context.
-8. If generating MCQs, ALWAYS return the quiz using EXACTLY the following format.
+7. If Document Comparison Mode is selected, compare information only from the uploaded documents and clearly mention which document each point belongs to.
+8. For Document Comparison Mode, prefer using tables for structured comparisons whenever possible. 
+9. If the user asks to generate a quiz, MCQs, practice questions, interview questions, or viva questions, create them ONLY from the provided document context.
+10. If generating MCQs, ALWAYS return the quiz using EXACTLY the following format.
 
 ## Question 1
 
@@ -142,7 +174,7 @@ Repeat this exact structure for every question.
 
 Never omit the labels "Correct Answer:" or "Explanation:".
 Never replace them with any other wording.
-9. If generating interview questions or viva questions, return them as a numbered list with each question on its own line.
+11. If generating interview questions or viva questions, return them as a numbered list with each question on its own line.
 
 User Question:
 {question}
@@ -218,5 +250,4 @@ Document Context:
 
 Quiz:
 """
-
     return prompt.strip()

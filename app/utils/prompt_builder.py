@@ -99,6 +99,50 @@ Core Rules:
 4. Mention source page numbers wherever relevant.
 5. Do not hallucinate or invent information.
 6. Keep the answer useful for students and early-career professionals.
+7. If the user asks to generate a quiz, MCQs, practice questions, interview questions, or viva questions, create them ONLY from the provided document context.
+8. If generating MCQs, ALWAYS return the quiz using EXACTLY the following format.
+
+## Question 1
+
+Question:
+<question>
+
+Options:
+A. <option>
+B. <option>
+C. <option>
+D. <option>
+
+Correct Answer:
+A
+
+Explanation:
+<one short explanation>
+
+------------------------
+
+## Question 2
+
+Question:
+...
+
+Options:
+A.
+B.
+C.
+D.
+
+Correct Answer:
+B
+
+Explanation:
+...
+
+Repeat this exact structure for every question.
+
+Never omit the labels "Correct Answer:" or "Explanation:".
+Never replace them with any other wording.
+9. If generating interview questions or viva questions, return them as a numbered list with each question on its own line.
 
 User Question:
 {question}
@@ -107,6 +151,72 @@ Document Context:
 {context}
 
 Final Answer:
+"""
+
+    return prompt.strip()
+
+def build_quiz_prompt(question, retrieved_chunks, mode):
+    """
+    Builds a dedicated prompt for quiz generation.
+    """
+
+    context_blocks = []
+
+    for chunk in retrieved_chunks:
+        context_blocks.append(
+            f"Source: {chunk['document_name']}, "
+            f"Page: {chunk['page_number']}, "
+            f"Chunk: {chunk['chunk_index']}\n"
+            f"Content: {chunk['chunk_text']}"
+        )
+
+    context = "\n\n".join(context_blocks)
+
+    prompt = f"""
+You are SkillSight AI.
+
+Your task is ONLY to generate quizzes.
+
+Use ONLY the document context.
+
+Never use outside knowledge.
+
+If the answer is unavailable in the document, do not create a question about it.
+
+Generate the quiz using EXACTLY this format.
+
+## Question 1
+
+Question:
+...
+
+Options:
+A. ...
+B. ...
+C. ...
+D. ...
+
+Correct Answer:
+A
+
+Explanation:
+...
+
+--------------------------------
+
+Repeat this format for every question.
+
+Do NOT skip any headings.
+
+Do NOT replace the heading names.
+
+User Request:
+{question}
+
+Document Context:
+{context}
+
+Quiz:
 """
 
     return prompt.strip()

@@ -25,12 +25,8 @@ def generate_answer_with_gemini(prompt):
 
         return response.text
 
-    except ResourceExhausted:
-        return (
-            "Gemini quota exceeded for this API key/project. "
-            "The RAG pipeline is working, but Gemini cannot generate an answer right now. "
-            "Please try again later or check your Gemini API quota in Google AI Studio."
-        )
+    except ResourceExhausted as error:
+        return f"RESOURCE EXHAUSTED:\n\n{error}"
 
     except NotFound:
         return (

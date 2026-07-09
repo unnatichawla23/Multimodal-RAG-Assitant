@@ -11,6 +11,8 @@ from components.chat_interface import (
     display_assistant_message,
 )
 
+from components.quiz_display import display_quiz
+
 st.set_page_config(
     page_title="SkillSight AI",
     page_icon="🧠",
@@ -19,13 +21,29 @@ st.set_page_config(
 
 initialize_memory()
 
-st.title("🧠 SkillSight AI")
-st.subheader("Multimodal RAG-based Student and Career Assistant")
+# Welcome screen (shown only when no conversation exists)
+if not get_chat_history():
+    st.markdown("---")
 
-st.write(
-    "Upload PDFs, resumes, notes, research papers, screenshots, and scanned documents. "
-    "Ask questions and get source-grounded answers."
-)
+    st.markdown("## 👋 Welcome to SkillSight AI")
+
+    st.write(
+        "Your AI-powered assistant for studying, research, resumes, career guidance, "
+        "and document understanding."
+    )
+
+    st.markdown("### 💡 Try asking questions like:")
+
+    st.markdown("""
+- 📄 Summarize this document
+- 🖼️ Explain this image
+- 📚 Explain this research paper in simple language
+- 📊 Compare these two documents
+- 💼 Review my resume
+- 🎯 Suggest interview questions based on this resume
+""")
+
+    st.markdown("---")
 
 st.sidebar.title("🧠 SkillSight AI")
 
@@ -132,8 +150,32 @@ if question:
         with st.expander("View Generated Prompt"):
             st.write(result["rag_prompt"])
 
-    display_assistant_message(result["final_answer"])
+    final_answer = result["final_answer"]
+
+    if (
+        "RESOURCE EXHAUSTED" in final_answer
+        or "429" in final_answer
+        or "quota exceeded" in final_answer.lower()
+    ):
+        st.error(final_answer)
+        st.stop()
+
+    if any(keyword in processed_question.lower() for keyword in [
+        "mcq",
+        "quiz",
+        "multiple choice",
+        "practice question",
+        "interview question",
+        "viva question"
+    ]):
+        
+        display_quiz(result["final_answer"])
+    else:
+        display_assistant_message(final_answer)
 
     display_retrieved_sources(result["retrieved_chunks"])
 
-    add_to_memory(processed_question, result["final_answer"])
+    add_to_memory(
+        processed_question,
+        final_answer
+    )

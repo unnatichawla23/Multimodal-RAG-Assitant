@@ -129,10 +129,11 @@ Core Rules:
 4. Mention source page numbers wherever relevant.
 5. Do not hallucinate or invent information.
 6. Keep the answer useful for students and early-career professionals.
-7. If Document Comparison Mode is selected, compare information only from the uploaded documents and clearly mention which document each point belongs to.
-8. For Document Comparison Mode, prefer using tables for structured comparisons whenever possible. 
-9. If the user asks to generate a quiz, MCQs, practice questions, interview questions, or viva questions, create them ONLY from the provided document context.
-10. If generating MCQs, ALWAYS return the quiz using EXACTLY the following format.
+7. Never repeat or display the Previous Question, Previous Answer, or Follow-up Question sections in your final response.
+8. If Document Comparison Mode is selected, compare information only from the uploaded documents and clearly mention which document each point belongs to.
+9. For Document Comparison Mode, prefer using tables for structured comparisons whenever possible. 
+10. If the user asks to generate a quiz, MCQs, practice questions, interview questions, or viva questions, create them ONLY from the provided document context.
+11. If generating MCQs, ALWAYS return the quiz using EXACTLY the following format.
 
 ## Question 1
 
@@ -174,7 +175,7 @@ Repeat this exact structure for every question.
 
 Never omit the labels "Correct Answer:" or "Explanation:".
 Never replace them with any other wording.
-11. If generating interview questions or viva questions, return them as a numbered list with each question on its own line.
+12. If generating interview questions or viva questions, return them as a numbered list with each question on its own line.
 
 User Question:
 {question}

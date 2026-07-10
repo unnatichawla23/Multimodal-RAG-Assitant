@@ -8,7 +8,12 @@ def initialize_memory():
         st.session_state.chat_history = []
 
 
-def add_to_memory(question, answer):
+def add_to_memory(
+    question,
+    answer,
+    mode,
+    retrieved_chunks
+):
     """
     Stores a question-answer pair in memory.
     """
@@ -17,7 +22,9 @@ def add_to_memory(question, answer):
     st.session_state.chat_history.append(
         {
             "question": question,
-            "answer": answer
+            "answer": answer,
+            "mode": mode,
+            "retrieved_chunks": retrieved_chunks
         }
     )
 

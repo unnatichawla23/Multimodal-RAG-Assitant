@@ -4,7 +4,7 @@ from utils.query_processor import process_user_query
 from utils.rag_pipeline import run_rag_pipeline
 from components.source_display import display_retrieved_sources
 from utils.memory_manager import initialize_memory, add_to_memory, get_chat_history
-
+from utils.context_manager import is_follow_up
 from components.chat_interface import (
     get_user_message,
     display_user_message,
@@ -98,6 +98,25 @@ if question:
 
     processed_question = process_user_query(question)
 
+    if (
+        is_follow_up(processed_question)
+        and get_chat_history()
+    ):
+        previous_chat = get_chat_history()[-1]
+
+        processed_question = f"""
+    Conversation Context:
+
+    Previous Question:
+    {previous_chat['question']}
+
+    Previous Answer:
+    {previous_chat['answer']}
+
+    Current User Question:
+    {processed_question}
+    """
+
     if not processed_question:
         st.warning("Please enter a question before generating an answer.")
         st.stop()
@@ -190,5 +209,7 @@ if question:
 
     add_to_memory(
         processed_question,
-        final_answer
+        result["final_answer"],
+        mode,
+        result["retrieved_chunks"]
     )

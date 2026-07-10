@@ -5,6 +5,8 @@ from utils.rag_pipeline import run_rag_pipeline
 from components.source_display import display_retrieved_sources
 from utils.memory_manager import initialize_memory, add_to_memory, get_chat_history
 from utils.context_manager import is_follow_up
+from utils.question_suggester import generate_suggested_questions
+from components.suggested_questions import display_suggested_questions
 from components.chat_interface import (
     get_user_message,
     display_user_message,
@@ -202,8 +204,15 @@ if question:
     ]):
         
         display_quiz(result["final_answer"])
+
+        suggestions = generate_suggested_questions(mode)
+        display_suggested_questions(suggestions)
+
     else:
         display_assistant_message(final_answer)
+
+    suggestions = generate_suggested_questions(mode)
+    display_suggested_questions(suggestions)
 
     display_retrieved_sources(result["retrieved_chunks"])
 
